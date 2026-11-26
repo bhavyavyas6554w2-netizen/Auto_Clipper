@@ -1,0 +1,69 @@
+name: Cookie Health Check
+
+on:
+  schedule:
+    - cron: "0 6 * * *"  # Daily 11:30 AM IST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-cookies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v4
+
+      - name: Python Setup
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install yt-dlp & PO Token Provider
+        run: pip install -U "yt-dlp[default]" bgutil-ytdlp-pot-provider
+
+      - name: Write Cookie Files
+        if: env.YT_COOKIES != '' || env.YT_COOKIES_2 != '' || env.YT_COOKIES_3 != '' || env.YT_PROXY != ''
+        env:
+          YT_COOKIES: ${{ secrets.YT_COOKIES }}
+          YT_COOKIES_2: ${{ secrets.YT_COOKIES_2 }}
+          YT_COOKIES_3: ${{ secrets.YT_COOKIES_3 }}
+          YT_PROXY: ${{ secrets.YT_PROXY }}
+        run: |
+          echo "YT_COOKIES_2=${YT_COOKIES_2}" >> $GITHUB_ENV
+          echo "YT_COOKIES_3=${YT_COOKIES_3}" >> $GITHUB_ENV
+          echo "YT_PROXY=${YT_PROXY}" >> $GITHUB_ENV
+
+      - name: Run Cookie Health Check
+        id: health
+        env:
+          YT_COOKIES: ${{ secrets.YT_COOKIES }}
+          YT_COOKIES_2: ${{ secrets.YT_COOKIES_2 }}
+          YT_COOKIES_3: ${{ secrets.YT_COOKIES_3 }}
+          YT_PROXY: ${{ secrets.YT_PROXY }}
+        run: |
+          python scripts/check_cookies.py
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: Upload Cookie Status Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cookie-status
+          path: cookie_status.json
+          retention-days: 30
+
+      - name: Create Issue on Cookie Failure
+        if: steps.health.outputs.exit_code == '1'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -f cookie_alert.json ]; then
+            gh issue create \
+              --title "🚨 Scheduled Cookie Health Check Failed - All Cookies Invalid" \
+              --body-file cookie_alert.json \
+              --label "cookie-expiry,automation,scheduled" || true
+          fi
