@@ -1,0 +1,47 @@
+{
+  "captions": {
+    "enabled": true,
+    "style": "editorial_glow",
+    "animation": "pop_highlight",
+    "effect": "none",
+    "effect_intensity": 1.0,
+    "position": "bottom_center",
+    "custom_x": 0.5,
+    "custom_y": 0.76,
+    "offset_x": 0,
+    "offset_y": 0,
+    "font_size": null,
+    "max_words": null,
+    "max_chars": null,
+    "uppercase": null,
+    "primary_color": null,
+    "accent_color": null,
+    "outline_color": null,
+    "outline_width": null,
+    "glow": null,
+    "background": null,
+    "background_color": null,
+    "background_opacity": null
+  },
+  "facecam": {
+    "mode": "auto",
+    "source_position": "auto",
+    "overlay_position": "top_right",
+    "crop_size": 0.3,
+    "size": 0.3,
+    "ratio": "auto",
+    "corner_radius": 28,
+    "border": true,
+    "border_color": "#FFFFFF",
+    "border_width": 4,
+    "background_color": "#000000",
+    "auto_detect": true
+  },
+  "video": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "crf": 23,
+    "preset": "fast"
+  }
+}
