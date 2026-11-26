@@ -1,0 +1,263 @@
+name: Auto YouTube Shorts Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      video_url:
+        description: "Optional: Paste 1 specific YouTube video URL to scan (leave empty for automatic multi-channel scan)"
+        required: false
+        default: ""
+      facecam_pos:
+        description: "Fallback Facecam Position (AI auto-detects automatically)"
+        required: false
+        default: "auto"
+        type: choice
+        options:
+          - auto
+          - mid_left
+          - mid_right
+          - top_left
+          - top_right
+          - bottom_left
+          - bottom_right
+      max_uploads_now:
+        description: "How many Shorts to upload/schedule in this run?"
+        required: false
+        default: "6"
+      lookback_hours:
+        description: "Scan videos uploaded within the last X hours (Default 25h = 24h + 1h buffer)"
+        required: false
+        default: "25"
+      publish_mode:
+        description: "Publish Mode"
+        required: false
+        default: "schedule_7pm"
+        type: choice
+        options:
+          - schedule_7pm
+          - public_now
+      # Caption controls
+      caption_style:
+        description: "Caption style preset (overrides config.json)"
+        required: false
+        default: ""
+        type: choice
+        options:
+          - ""
+          - editorial_glow
+          - neon_cyber
+          - typewriter_mono
+          - comic_pop
+          - minimal_clean
+          - retro_vhs
+          - cinematic_wide
+          - bold_block
+          - gradient_flow
+          - karaoke_sync
+          - handwritten
+          - glitch_fx
+          - elegant_serif
+          - arcade_pixel
+          - news_ticker
+          - manga_shout
+          - soft_dream
+          - graffiti_tag
+          - horror_drip
+          - sci_fi_hud
+      caption_animation:
+        description: "Caption animation (overrides config.json)"
+        required: false
+        default: ""
+        type: choice
+        options:
+          - ""
+          - pop_highlight
+          - bounce
+          - slide_up
+          - fade_in
+          - typewriter
+          - zoom_pulse
+          - shake
+          - wave
+          - karaoke_fill
+          - static
+      caption_position:
+        description: "Caption position (overrides config.json)"
+        required: false
+        default: ""
+        type: choice
+        options:
+          - ""
+          - top_left
+          - top_center
+          - top_right
+          - mid_left
+          - mid_center
+          - mid_right
+          - bottom_left
+          - bottom_center
+          - bottom_right
+          - custom
+      # Facecam controls
+      facecam_mode:
+        description: "Facecam layout mode (overrides config.json)"
+        required: false
+        default: ""
+        type: choice
+        options:
+          - ""
+          - auto
+          - fullscreen
+          - split_top
+          - split_bottom
+          - half_top
+          - half_bottom
+          - circle
+          - square
+          - rounded
+      facecam_size:
+        description: "Facecam size ratio 0.12–0.55 (overrides config.json)"
+        required: false
+        default: ""
+      facecam_ratio:
+        description: "Facecam aspect ratio (overrides config.json)"
+        required: false
+        default: ""
+        type: choice
+        options:
+          - ""
+          - auto
+          - "16:9"
+          - "4:3"
+          - "1:1"
+          - "3:4"
+          - "9:16"
+          - "21:9"
+  schedule:
+    - cron: "45 12 * * *"  # Runs daily at 6:15 PM IST (12:45 UTC) -> Schedules Shorts from 7:00 PM IST every 10 min
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: auto-shorts-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  make-and-upload-short:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Python Setup
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Libraries & Aesthetic Caption Fonts
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg fontconfig fonts-liberation
+          pip install -U "yt-dlp[default]" requests google-auth google-api-python-client faster-whisper bgutil-ytdlp-pot-provider
+
+          # Fonts for 20 caption styles
+          FONTS=(
+            "https://raw.githubusercontent.com/google/fonts/main/ofl/poppins/Poppins-Bold.ttf"
+            "https://raw.githubusercontent.com/google/fonts/main/ofl/playfairdisplay/static/PlayfairDisplay-BoldItalic.ttf"
+            "https://raw.githubusercontent.com/google/fonts/main/ofl/dmserifdisplay/DMSerifDisplay-Italic.ttf"
+            "https://raw.githubusercontent.com/JulietaUla/Montserrat/master/fonts/ttf/Montserrat-ExtraBold.ttf"
+            "https://raw.githubusercontent.com/google/fonts/main/ofl/anton/Anton-Regular.ttf"
+            "https://raw.githubusercontent.com/google/fonts/main/ofl/bebasneue/BebasNeue-Regular.ttf"
+            "https://raw.githubusercontent.com/google/fonts/main/ofl/bangers/Bangers-Regular.ttf"
+            "https://raw.githubusercontent.com/google/fonts/main/ofl/luckiestguy/LuckiestGuy-Regular.ttf"
+            "https://raw.githubusercontent.com/google/fonts/main/ofl/cinzel/Cinzel-Bold.ttf"
+            "https://raw.githubusercontent.com/google/fonts/main/ofl/pressstart2p/PressStart2P-Regular.ttf"
+            "https://raw.githubusercontent.com/google/fonts/main/ofl/permanentmarker/PermanentMarker-Regular.ttf"
+            "https://raw.githubusercontent.com/google/fonts/main/ofl/lobster/Lobster-Regular.ttf"
+            "https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter-Bold.ttf"
+            "https://raw.githubusercontent.com/google/fonts/main/ofl/archivoblack/ArchivoBlack-Regular.ttf"
+            "https://raw.githubusercontent.com/google/fonts/main/ofl/spacegrotesk/SpaceGrotesk-Bold.ttf"
+            "https://raw.githubusercontent.com/google/fonts/main/ofl/righteous/Righteous-Regular.ttf"
+            "https://raw.githubusercontent.com/google/fonts/main/ofl/robotomono/RobotoMono-Bold.ttf"
+          )
+          mkdir -p ~/.local/share/fonts
+          for url in "${FONTS[@]}"; do
+            curl -fsSL "$url" -o ~/.local/share/fonts/$(basename "$url") || true
+          done
+          fc-cache -f || true
+
+      - name: Write Cookie Files
+        if: env.YT_COOKIES != '' || env.YT_COOKIES_2 != '' || env.YT_COOKIES_3 != '' || env.YT_PROXY != ''
+        env:
+          YT_COOKIES: ${{ secrets.YT_COOKIES }}
+          YT_COOKIES_2: ${{ secrets.YT_COOKIES_2 }}
+          YT_COOKIES_3: ${{ secrets.YT_COOKIES_3 }}
+          YT_PROXY: ${{ secrets.YT_PROXY }}
+        run: |
+          # Cookie files are written by cookie_manager.py at runtime; just export env for the Python process
+          echo "YT_COOKIES_2=${YT_COOKIES_2}" >> $GITHUB_ENV
+          echo "YT_COOKIES_3=${YT_COOKIES_3}" >> $GITHUB_ENV
+          echo "YT_PROXY=${YT_PROXY}" >> $GITHUB_ENV
+
+      - name: Scan Channels, 50-50 Split, Schedule Shorts & 10-Day Drive Archive
+        env:
+          VIDEO_URL: ${{ inputs.video_url }}
+          FACECAM_POS: ${{ inputs.facecam_pos || 'auto' }}
+          MAX_UPLOADS: ${{ inputs.max_uploads_now || '6' }}
+          LOOKBACK_HOURS: ${{ inputs.lookback_hours || '25' }}
+          PUBLISH_MODE: ${{ inputs.publish_mode || 'schedule_7pm' }}
+          SCHEDULE_GAP_MINUTES: "10"
+          ARCHIVE_AFTER_DAYS: "10"
+          MAX_ARCHIVE_PER_RUN: "5"
+          ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          YT_API_KEY: ${{ secrets.YT_API_KEY }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          DRIVE_GMAIL_REFRESH_TOKEN: ${{ secrets.DRIVE_GMAIL_REFRESH_TOKEN }}
+          YT_COOKIES: ${{ secrets.YT_COOKIES }}
+          YT_COOKIES_2: ${{ secrets.YT_COOKIES_2 }}
+          YT_COOKIES_3: ${{ secrets.YT_COOKIES_3 }}
+          YT_PROXY: ${{ secrets.YT_PROXY }}
+          # Optional workflow overrides for captions/facecam
+          CAPTION_STYLE: ${{ inputs.caption_style }}
+          CAPTION_ANIMATION: ${{ inputs.caption_animation }}
+          CAPTION_POSITION: ${{ inputs.caption_position }}
+          FACECAM_MODE: ${{ inputs.facecam_mode }}
+          FACECAM_SIZE: ${{ inputs.facecam_size }}
+          FACECAM_RATIO: ${{ inputs.facecam_ratio }}
+        run: python process_video.py
+
+      - name: Check Cookie Alert
+        if: always()
+        run: |
+          if [ -f cookie_alert.json ]; then
+            echo "::warning::Cookie alert detected - creating GitHub issue"
+            cat cookie_alert.json
+            gh issue create \
+              --title "🚨 YouTube Cookie Expiry / Bot Check Detected" \
+              --body "$(cat cookie_alert.json | jq -r '.details' 2>/dev/null || cat cookie_alert.json)" \
+              --label "cookie-expiry,automation" || true
+          else
+            echo "No cookie alert."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Save Queue & Scan State to GitHub
+        if: always()
+        run: |
+          git config user.name "AutoShorts Bot"
+          git config user.email "bot@users.noreply.github.com"
+          for f in clip_queue.json scanned_state.json; do
+            if [ -f "$f" ]; then
+              git add "$f"
+            fi
+          done
+          git diff --staged --quiet || git commit -m "Update shorts queue & scan state"
+          git push
