@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Design 20 caption styles, 10 animations and 9 facecam layouts for Auto Clipper. Generates config.json for your GitHub repo.">
+  <title>Auto Clipper Studio — Shorts Design Configurator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Bangers&family=Cinzel:wght@700&family=Inter:wght@900&family=Lobster&family=Luckiest+Guy&family=Montserrat:wght@800&family=Permanent+Marker&family=Playfair+Display:ital,wght@1,700&family=Poppins:wght@700&family=Press+Start+2P&family=Righteous&family=Roboto+Mono:wght@700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top">
+      <span class="brand-bolt">⚡</span>
+      <span>Auto Clipper <b>Studio</b></span>
+    </a>
+    <nav class="topnav">
+      <a href="#captions">Captions</a>
+      <a href="#facecam">Facecam</a>
+      <a href="#export">Export</a>
+      <a href="https://github.com/sunitavyas271983-hub/auto_clipper" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">100% GitHub Pages · No server needed</p>
+        <h1>Design your Shorts.<br><span>No code.</span></h1>
+        <p class="hero-copy">
+          Pick a caption style, animation, position and facecam layout.
+          Watch the live preview, then download a ready-to-use
+          <code>config.json</code> for your Auto Clipper repo.
+        </p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#captions">Start designing</a>
+          <button class="btn ghost" id="randomizeBtn" type="button">🎲 Surprise me</button>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div><b>20</b><span>caption styles</span></div>
+        <div><b>10</b><span>animations</span></div>
+        <div><b>9</b><span>facecam layouts</span></div>
+        <div><b>3</b><span>cookie sets</span></div>
+      </div>
+    </section>
+
+    <section class="studio">
+      <div class="panel controls" id="controls">
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-tab="captions" type="button">Captions</button>
+          <button class="tab" data-tab="effects" type="button">Effects</button>
+          <button class="tab" data-tab="facecam" type="button">Facecam</button>
+          <button class="tab" data-tab="video" type="button">Video</button>
+          <button class="tab" data-tab="export" type="button">Export</button>
+        </div>
+
+        <!-- CAPTIONS -->
+        <div class="tab-panel" id="tab-captions">
+          <section class="group" id="captions">
+            <div class="group-head">
+              <h2>Caption style</h2>
+              <span class="hint">20 presets</span>
+            </div>
+            <div class="card-grid styles" id="styleGrid"></div>
+          </section>
+
+          <section class="group">
+            <div class="group-head">
+              <h2>Animation</h2>
+              <span class="hint">10 presets</span>
+            </div>
+            <div class="card-grid animations" id="animationGrid"></div>
+          </section>
+
+          <section class="group">
+            <div class="group-head">
+              <h2>Position</h2>
+              <span class="hint">click a cell</span>
+            </div>
+            <div class="position-row">
+              <div class="pos-grid" id="positionGrid"></div>
+              <div class="pos-fine">
+                <label class="range-label" for="offsetY">Fine tune Y <output id="offsetYVal">0</output> px</label>
+                <input id="offsetY" type="range" min="-500" max="500" step="5" value="0">
+                <label class="range-label" for="offsetX">Fine tune X <output id="offsetXVal">0</output> px</label>
+                <input id="offsetX" type="range" min="-400" max="400" step="5" value="0">
+              </div>
+            </div>
+          </section>
+
+          <section class="group">
+            <div class="group-head"><h2>Text</h2></div>
+            <div class="two-col">
+              <label class="field">Font size
+                <span class="range-label"><input id="fontSize" type="range" min="30" max="110" step="1" value="74"><output id="fontSizeVal">74</output></span>
+              </label>
+              <label class="field">Max words / line
+                <span class="range-label"><input id="maxWords" type="range" min="1" max="6" step="1" value="3"><output id="maxWordsVal">3</output></span>
+              </label>
+              <label class="field">Max chars / line
+                <span class="range-label"><input id="maxChars" type="range" min="8" max="30" step="1" value="18"><output id="maxCharsVal">18</output></span>
+              </label>
+              <label class="field">Outline width
+                <span class="range-label"><input id="outlineWidth" type="range" min="0" max="12" step="0.5" value="3"><output id="outlineWidthVal">3</output></span>
+              </label>
+            </div>
+            <div class="toggle-row">
+              <label class="switch"><input id="uppercase" type="checkbox"><span></span>UPPERCASE</label>
+              <label class="switch"><input id="glowToggle" type="checkbox"><span></span>Glow</label>
+              <label class="switch"><input id="backgroundToggle" type="checkbox"><span></span>Box background</label>
+            </div>
+            <div class="two-col colors">
+              <label class="field color-field">Text <input id="primaryColor" type="color" value="#FFFFFF"></label>
+              <label class="field color-field">Highlight <input id="accentColor" type="color" value="#FF3B6B"></label>
+              <label class="field color-field">Outline <input id="outlineColor" type="color" value="#000000"></label>
+              <label class="field color-field">Box <input id="backgroundColor" type="color" value="#000000"></label>
+            </div>
+            <label class="field">Box opacity
+              <span class="range-label"><input id="backgroundOpacity" type="range" min="0" max="1" step="0.05" value="0.62"><output id="backgroundOpacityVal">0.62</output></span>
+            </label>
+            <button class="btn small" id="resetCaptions" type="button">Reset to style defaults</button>
+          </section>
+        </div>
+
+        <!-- EFFECTS -->
+        <div class="tab-panel hidden" id="tab-effects">
+          <section class="group" id="effects">
+            <div class="group-head">
+              <h2>Effect Preset</h2>
+              <span class="hint">10 presets</span>
+            </div>
+            <div class="card-grid effects" id="effectGrid"></div>
+          </section>
+
+          <section class="group">
+            <div class="group-head"><h2>Intensity</h2></div>
+            <label class="field">Effect Intensity
+              <span class="range-label"><input id="effectIntensity" type="range" min="0.1" max="3.0" step="0.1" value="1.0"><output id="effectIntensityVal">1.0</output></span>
+            </label>
+          </section>
+        </div>
+
+        <!-- FACECAM -->
+        <div class="tab-panel hidden" id="tab-facecam">
+          <section class="group" id="facecam">
+            <div class="group-head">
+              <h2>Layout</h2>
+              <span class="hint">9 presets</span>
+            </div>
+            <div class="card-grid layouts" id="layoutGrid"></div>
+          </section>
+
+          <section class="group">
+            <div class="group-head"><h2>Facecam source</h2><span class="hint">where it is in the original video</span></div>
+            <label class="switch"><input id="sourceAuto" type="checkbox" checked><span></span>Auto detect with AI</label>
+            <div class="pos-grid compact" id="sourceGrid"></div>
+          </section>
+
+          <section class="group" id="overlayGroup">
+            <div class="group-head"><h2>Overlay position</h2><span class="hint">circle / square / smooth square</span></div>
+            <div class="pos-grid compact" id="overlayGrid"></div>
+          </section>
+
+          <section class="group">
+            <div class="group-head"><h2>Size &amp; ratio</h2></div>
+            <div class="two-col">
+              <label class="field">Facecam size
+                <span class="range-label"><input id="facecamSize" type="range" min="0.12" max="0.55" step="0.01" value="0.3"><output id="facecamSizeVal">30%</output></span>
+              </label>
+              <label class="field">Crop size
+                <span class="range-label"><input id="cropSize" type="range" min="0.15" max="0.55" step="0.01" value="0.3"><output id="cropSizeVal">30%</output></span>
+              </label>
+              <label class="field">Facecam ratio
+                <select id="facecamRatio">
+                  <option value="auto">Auto (from AI / layout)</option>
+                  <option value="16:9">16:9 (widescreen)</option>
+                  <option value="4:3">4:3</option>
+                  <option value="1:1">1:1 (square)</option>
+                  <option value="3:4">3:4</option>
+                  <option value="9:16">9:16 (vertical)</option>
+                  <option value="21:9">21:9 (cinematic)</option>
+                </select>
+              </label>
+              <label class="field">Corner radius
+                <span class="range-label"><input id="cornerRadius" type="range" min="0" max="120" step="2" value="28"><output id="cornerRadiusVal">28</output></span>
+              </label>
+            </div>
+            <div class="toggle-row">
+              <label class="switch"><input id="borderToggle" type="checkbox" checked><span></span>Border</label>
+              <label class="switch"><input id="autoDetect" type="checkbox" checked><span></span>AI auto-detect</label>
+            </div>
+            <div class="two-col colors">
+              <label class="field color-field">Border colour <input id="borderColor" type="color" value="#FFFFFF"></label>
+              <label class="field">Border width
+                <span class="range-label"><input id="borderWidth" type="range" min="0" max="16" step="1" value="4"><output id="borderWidthVal">4</output></span>
+              </label>
+            </div>
+          </section>
+        </div>
+
+        <!-- VIDEO -->
+        <div class="tab-panel hidden" id="tab-video">
+          <section class="group">
+            <div class="group-head"><h2>Output</h2></div>
+            <div class="two-col">
+              <label class="field">Resolution
+                <select id="resolution">
+                  <option value="1080x1920">1080 × 1920 (recommended)</option>
+                  <option value="720x1280">720 × 1280 (faster)</option>
+                </select>
+              </label>
+              <label class="field">FPS
+                <select id="fps"><option value="30">30 fps</option><option value="60">60 fps</option></select>
+              </label>
+              <label class="field">CRF quality
+                <span class="range-label"><input id="crf" type="range" min="16" max="30" step="1" value="23"><output id="crfVal">23</output></span>
+              </label>
+              <label class="field">Encoder preset
+                <select id="preset">
+                  <option value="veryfast">veryfast</option>
+                  <option value="fast" selected>fast</option>
+                  <option value="medium">medium</option>
+                  <option value="slow">slow</option>
+                </select>
+              </label>
+            </div>
+          </section>
+
+          <section class="group">
+            <div class="group-head"><h2>Preview images (optional)</h2><span class="hint">stays in your browser</span></div>
+            <div class="two-col">
+              <label class="field upload">Gameplay screenshot
+                <input id="gameplayUpload" type="file" accept="image/*">
+              </label>
+              <label class="field upload">Facecam screenshot
+                <input id="facecamUpload" type="file" accept="image/*">
+              </label>
+            </div>
+            <button class="btn small" id="clearImages" type="button">Clear images</button>
+          </section>
+
+          <section class="group">
+            <div class="group-head"><h2>How it fits together</h2></div>
+            <p class="muted">
+              The pipeline downloads a clip, transcribes it with Whisper, burns the selected
+              caption style + animation, crops the facecam using the selected layout, and
+              uploads the final 9:16 Short. <code>config.json</code> controls all of it.
+            </p>
+          </section>
+        </div>
+
+        <!-- EXPORT -->
+        <div class="tab-panel hidden" id="tab-export">
+          <section class="group" id="export">
+            <div class="group-head"><h2>Your config.json</h2><span class="hint">copy or download</span></div>
+            <pre class="code" id="configOutput"></pre>
+            <div class="export-actions">
+              <button class="btn primary" id="copyConfig" type="button">Copy config.json</button>
+              <button class="btn" id="downloadConfig" type="button">Download config.json</button>
+            </div>
+          </section>
+
+          <section class="group">
+            <div class="group-head"><h2>Save to Repo (GitHub API)</h2><span class="hint">requires Fine-Grained PAT</span></div>
+            <div class="two-col">
+              <label class="field">Repository Owner
+                <input id="repoOwner" type="text" placeholder="your-github-username">
+              </label>
+              <label class="field">Repository Name
+                <input id="repoName" type="text" placeholder="auto_clipper">
+              </label>
+            </div>
+            <label class="field">Fine-Grained PAT
+              <input id="githubPat" type="password" placeholder="ghp_..." autocomplete="off">
+              <span class="hint">Scopes: Contents (Read & Write) on this repo only. Stored in browser localStorage.</span>
+            </label>
+            <div class="toggle-row">
+              <label class="switch"><input id="savePat" type="checkbox"><span></span>Remember PAT in browser</label>
+            </div>
+            <div class="export-actions">
+              <button class="btn primary" id="saveToRepo" type="button">Save config.json to Repo</button>
+            </div>
+          </section>
+
+          <section class="group">
+            <div class="group-head"><h2>How to apply</h2></div>
+            <ol class="steps">
+              <li>Download <code>config.json</code>.</li>
+              <li>Open your Auto Clipper repo on GitHub.</li>
+              <li>Replace the existing <code>config.json</code> with this file and commit.</li>
+              <li>Go to <b>Actions → Auto YouTube Shorts Pipeline → Run workflow</b>.</li>
+              <li>Your next Short uses the new style automatically.</li>
+            </ol>
+            <p><a id="githubEditLink" class="btn small" href="https://github.com/sunitavyas271983-hub/auto_clipper/edit/main/config.json" target="_blank" rel="noopener">Open config.json on GitHub ↗</a></p>
+          </section>
+
+          <details class="hindi-help">
+            <summary>🇮🇳 Hindi me kaise use kare?</summary>
+            <ol>
+              <li>Captions tab me 20 styles me se koi ek choose karo.</li>
+              <li>Animation, position aur colours adjust karo — right side live preview me result dikhega.</li>
+              <li>Facecam tab me layout (circle, square, smooth square, halfscreen, split) choose karo.</li>
+              <li>Size, ratio, position set karo.</li>
+              <li>Export tab se <code>config.json</code> download karo.</li>
+              <li>Apne GitHub repo me <code>config.json</code> replace karke commit karo.</li>
+              <li>Actions → Auto YouTube Shorts Pipeline → Run workflow.</li>
+            </ol>
+          </details>
+        </div>
+      </div>
+
+      <aside class="panel preview-panel">
+        <div class="preview-head">
+          <div>
+            <h2>Live preview</h2>
+            <p class="muted" id="previewMeta">Editorial Glow · Pop Highlight</p>
+          </div>
+          <span class="badge" id="layoutBadge">Split Top</span>
+        </div>
+
+        <div class="phone-wrap">
+          <div class="phone" id="phone">
+            <div class="gameplay" id="gameplay"></div>
+            <div class="facecam-layer" id="facecamLayer">
+              <span class="facecam-emoji">🧑‍🎤</span>
+            </div>
+            <div class="caption-layer" id="captionLayer"></div>
+            <div class="phone-ui">
+              <span class="ui-side"></span>
+              <span class="ui-bottom"></span>
+            </div>
+          </div>
+          <div class="phone-caption">9:16 Short preview</div>
+        </div>
+
+        <div class="source-block">
+          <div class="group-head"><h3>Source crop</h3><span class="hint" id="sourceLabel">AI auto</span></div>
+          <div class="source-frame" id="sourceFrame">
+            <div class="source-crop" id="sourceCrop"></div>
+          </div>
+          <p class="muted small">The highlighted box is the part of the original video used for the facecam.</p>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <footer>
+    <p>Auto Clipper Studio · MIT License · Built for <a href="https://github.com/sunitavyas271983-hub/auto_clipper" target="_blank" rel="noopener">sunitavyas271983-hub/auto_clipper</a></p>
+    <p class="muted small">This page is static HTML/CSS/JS. It works on GitHub Pages, or by opening <code>docs/index.html</code> locally.</p>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
